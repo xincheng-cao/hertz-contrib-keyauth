@@ -59,6 +59,9 @@ func New(opts ...Option) app.HandlerFunc {
 	// Return middleware handler
 	return func(c context.Context, ctx *app.RequestContext) {
 		// Filter request to skip middleware
+		// add break point here and when request comes
+		// it will break here bc return func's addr i guess
+		// so when 回调 this func it will go to this addr so the break works
 		if cfg.filterHandler != nil && cfg.filterHandler(c, ctx) {
 			ctx.Next(c)
 			return
@@ -69,8 +72,15 @@ func New(opts ...Option) app.HandlerFunc {
 			cfg.errorHandler(c, ctx, err)
 			return
 		}
+		// no "if cfg.validator != nil", so must have a validator
+		// default defined in option.go->NewOptions->validator
 		valid, err := cfg.validator(c, ctx, key)
 		if err == nil && valid {
+			// @ example/quickstart/main.go
+			// value, _ := ctx.Get("token")
+			// keyauth.WithContextKey("token"),
+			// so in cfg.contextKey is "token"
+			// and set here
 			ctx.Set(cfg.contextKey, key)
 			cfg.successHandler(c, ctx)
 			return

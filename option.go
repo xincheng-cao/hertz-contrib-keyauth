@@ -103,6 +103,10 @@ func NewOptions(opts ...Option) *Options {
 			}
 			ctx.AbortWithMsg(err.Error(), http.StatusUnauthorized)
 		},
+		//default validator defined here bc
+		// it will use in keyauth.go @ cfg.validator
+		// can also add breakpoint here when reqs come it will break
+		// to do validation operation although this func do nothing
 		validator: func(ctx context.Context, requestContext *app.RequestContext, s string) (bool, error) {
 			return true, nil
 		},
