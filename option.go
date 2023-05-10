@@ -91,6 +91,9 @@ func (o *Options) Apply(opts []Option) {
 func NewOptions(opts ...Option) *Options {
 	options := &Options{
 		successHandler: func(c context.Context, ctx *app.RequestContext) {
+			// Next should be used only inside middleware.
+			// It executes the pending handlers in the chain inside the calling handler.
+			// the handler is like successHandler errorHandler validator filterHandler (not sure)
 			ctx.Next(c)
 		},
 		errorHandler: func(c context.Context, ctx *app.RequestContext, err error) {

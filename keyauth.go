@@ -43,7 +43,9 @@ func New(opts ...Option) app.HandlerFunc {
 	if len(parts) != 2 {
 		panic(errors.New("the length of parts should be equal to 2"))
 	}
+	// always assume parts[0] switch to case "header"
 	extractor := KeyFromHeader(parts[1], cfg.authScheme)
+	// if not "header", try other...
 	switch parts[0] {
 	case "query":
 		extractor = KeyFromQuery(parts[1])

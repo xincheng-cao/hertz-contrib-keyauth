@@ -27,13 +27,13 @@ package main
 
 import (
 	"context"
+	"data1/shiba/keyauth"
 	"net/http"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/keyauth"
 )
 
 func main() {
@@ -44,11 +44,13 @@ func main() {
 
 		// The middleware is skipped when true is returned.
 		keyauth.WithFilter(func(c context.Context, ctx *app.RequestContext) bool {
+			//always return true so always skip...
 			return true
 		}),
 
 		// It may be used to validate key.
 		// If returns false or err != nil, then errorHandler is used.
+		// Below is the errorHandler
 		keyauth.WithValidator(func(ctx context.Context, requestContext *app.RequestContext, s string) (bool, error) {
 			return false, keyauth.ErrMissingOrMalformedAPIKey
 		}),

@@ -28,11 +28,11 @@ package main
 import (
 	"context"
 
+	"data1/shiba/keyauth"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/keyauth"
 )
 
 func main() {
@@ -42,6 +42,9 @@ func main() {
 		keyauth.WithKeyLookUp("query:token", ""),
 	))
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
+		// http://10.200.0.43:8888/ping?token=123ss12313 works
+		// http://10.200.0.43:8888/ping not work
+		// http://10.200.0.43:8888/ping?toke=231 not work
 		value, _ := ctx.Get("token")
 		ctx.JSON(consts.StatusOK, utils.H{"ping": value})
 	})
