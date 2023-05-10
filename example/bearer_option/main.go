@@ -28,41 +28,61 @@ package main
 import (
 	"context"
 	"data1/shiba/keyauth"
-	"net/http"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"net/http"
+	"os"
 )
 
+const BEARER string = "innovationlabchaogeyangconggejinjinjiewuyuanqingchenxiaolu"
+
 func main() {
+	err := os.Setenv("BEARER", BEARER)
+	if err != nil {
+		return
+	}
+
 	h := server.Default()
 	h.Use(keyauth.New(
-		keyauth.WithContextKey("token"),
-		keyauth.WithKeyLookUp("query:token", ""),
+		keyauth.WithContextKey("Bearer"),
+		//keyauth.WithKeyLookUp("query:token", ""),
+		/*
+			the default @ option.go:
+
+				authScheme: "Bearer",
+				contextKey: "token",
+				keyLookup:  "header:" + consts.HeaderAuthorization,
+		*/
 
 		// The middleware is skipped when true is returned.
 		keyauth.WithFilter(func(c context.Context, ctx *app.RequestContext) bool {
 			//always return true so always skip...
-			return true
+			// always return false so never skip the mw(middleware)
+			return false
 		}),
 
 		// It may be used to validate key.
 		// If returns false or err != nil, then errorHandler is used.
 		// Below is the errorHandler
 		keyauth.WithValidator(func(ctx context.Context, requestContext *app.RequestContext, s string) (bool, error) {
-			return false, keyauth.ErrMissingOrMalformedAPIKey
+			//s is the extracted token
+			if s == os.Getenv("BEARER") {
+				return true, nil
+			} else {
+				return false, keyauth.ErrMissingOrMalformedAPIKey
+			}
 		}),
 
 		// It may be used to define a custom error.
 		keyauth.WithErrorHandler(func(ctx context.Context, requestContext *app.RequestContext, err error) {
-			requestContext.AbortWithMsg("msg", http.StatusBadRequest)
+			requestContext.AbortWithMsg("reached WithErrorHandler", http.StatusBadRequest)
 		}),
 	))
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
-		value, _ := ctx.Get("token")
-		ctx.JSON(consts.StatusOK, utils.H{"ping": value})
+		value, _ := ctx.Get("Bearer")
+		ctx.JSON(consts.StatusOK, utils.H{"pong you the bearer": value})
 	})
 	h.Spin()
 }
